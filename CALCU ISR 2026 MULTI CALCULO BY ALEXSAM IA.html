@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calculadora ISR 2026 v2 | By AlexSam</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=Share+Tech+Mono&family=Exo+2:wght@300;400;700&display=swap');
+  :root {
+    --bg:#050a0f;--panel:#0a1520;--border:#1a3a5c;
+    --accent:#00d4ff;--accent2:#ff6b00;--green:#00ff88;
+    --red:#ff3366;--text:#c8e0f0;--dim:#4a7a9b;--gold:#ffd700;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;min-height:100vh;
+    background-image:radial-gradient(ellipse at 20% 20%,rgba(0,212,255,.05) 0%,transparent 50%),
+    radial-gradient(ellipse at 80% 80%,rgba(255,107,0,.05) 0%,transparent 50%);}
+  header{background:linear-gradient(135deg,#0a1520,#051020);border-bottom:1px solid var(--border);
+    padding:16px 24px;display:flex;align-items:center;justify-content:space-between;
+    position:sticky;top:0;z-index:100;}
+  .logo{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:1.4rem;color:var(--accent);
+    letter-spacing:2px;text-transform:uppercase;}
+  .logo span{color:var(--accent2);}
+  .badge{background:rgba(0,212,255,.1);border:1px solid var(--accent);color:var(--accent);
+    padding:4px 12px;border-radius:20px;font-size:.75rem;font-family:'Share Tech Mono',monospace;letter-spacing:1px;}
+  .container{max-width:1300px;margin:0 auto;padding:24px;}
+  .controls-panel{background:var(--panel);border:1px solid var(--border);border-radius:12px;
+    padding:20px;margin-bottom:16px;display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+    gap:16px;align-items:end;}
+  .ret-panel{border-color:#1a5c3a;}
+  .field-group{display:flex;flex-direction:column;gap:6px;}
+  label{font-size:.7rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--dim);
+    font-family:'Share Tech Mono',monospace;}
+  select,input{background:rgba(0,0,0,.4);border:1px solid var(--border);color:var(--text);
+    padding:10px 14px;border-radius:8px;font-family:'Share Tech Mono',monospace;font-size:.9rem;
+    outline:none;transition:border-color .2s;width:100%;}
+  select:focus,input:focus{border-color:var(--accent);}
+  select option{background:#0a1520;}
+  .btn{padding:10px 20px;border-radius:8px;border:none;font-family:'Rajdhani',sans-serif;
+    font-weight:600;font-size:.9rem;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:all .2s;}
+  .btn-primary{background:linear-gradient(135deg,var(--accent),#0099cc);color:#000;}
+  .btn-primary:hover{transform:translateY(-1px);box-shadow:0 4px 20px rgba(0,212,255,.4);}
+  .btn-success{background:linear-gradient(135deg,var(--green),#00cc66);color:#000;}
+  .btn-success:hover{transform:translateY(-1px);box-shadow:0 4px 20px rgba(0,255,136,.4);}
+  .btn-warning{background:linear-gradient(135deg,var(--accent2),#cc5500);color:#fff;}
+  .btn-sm{padding:5px 10px;font-size:.75rem;border-radius:5px;}
+  .data-grid{background:var(--panel);border:1px solid var(--border);border-radius:12px;
+    overflow:hidden;margin-bottom:20px;}
+  .grid-header{background:rgba(0,212,255,.08);border-bottom:1px solid var(--border);
+    padding:14px 20px;display:flex;align-items:center;justify-content:space-between;}
+  .grid-title{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:1rem;
+    color:var(--accent);letter-spacing:2px;text-transform:uppercase;}
+  .grid-actions{display:flex;gap:8px;}
+  table{width:100%;border-collapse:collapse;}
+  th{background:rgba(0,0,0,.3);padding:10px 10px;text-align:left;font-size:.62rem;
+    text-transform:uppercase;letter-spacing:1.5px;color:var(--dim);
+    font-family:'Share Tech Mono',monospace;border-bottom:1px solid var(--border);white-space:nowrap;}
+  td{padding:8px 10px;border-bottom:1px solid rgba(26,58,92,.5);
+    font-family:'Share Tech Mono',monospace;font-size:.8rem;vertical-align:middle;}
+  tr:hover td{background:rgba(0,212,255,.03);}
+  .td-input{background:rgba(0,0,0,.3);border:1px solid var(--border);color:var(--text);
+    padding:5px 8px;border-radius:5px;font-family:'Share Tech Mono',monospace;font-size:.8rem;
+    width:100%;outline:none;min-width:90px;}
+  .td-input:focus{border-color:var(--accent);}
+  .val-bruto{color:var(--text);}
+  .val-isr{color:var(--red);}
+  .val-subsidio{color:var(--green);}
+  .val-neto{color:var(--gold);font-weight:bold;}
+  .val-imss{color:#ff9f43;}
+  .val-otras{color:#a29bfe;}
+  .row-num{color:var(--dim);font-size:.75rem;text-align:center;}
+  .totals-row td{background:rgba(0,212,255,.06);border-top:2px solid var(--accent);
+    font-weight:bold;color:var(--accent);}
+  .summary-panel{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+    gap:14px;margin-bottom:20px;}
+  .summary-card{background:var(--panel);border:1px solid var(--border);border-radius:10px;
+    padding:14px;text-align:center;}
+  .summary-label{font-size:.62rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--dim);
+    font-family:'Share Tech Mono',monospace;margin-bottom:6px;}
+  .summary-value{font-family:'Share Tech Mono',monospace;font-size:1rem;font-weight:bold;}
+  .mode-badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:.62rem;
+    font-family:'Share Tech Mono',monospace;letter-spacing:1px;text-transform:uppercase;}
+  .mode-directo{background:rgba(0,255,136,.15);color:var(--green);border:1px solid var(--green);}
+  .mode-inverso{background:rgba(255,107,0,.15);color:var(--accent2);border:1px solid var(--accent2);}
+  .footer-bar{background:var(--panel);border:1px solid var(--border);border-radius:10px;
+    padding:14px 20px;display:flex;align-items:center;justify-content:space-between;
+    font-size:.72rem;color:var(--dim);font-family:'Share Tech Mono',monospace;}
+  .footer-brand{color:var(--accent);font-weight:bold;}
+  .info-formula{font-size:.68rem;color:var(--dim);padding:8px 0;
+    font-family:'Share Tech Mono',monospace;line-height:1.5;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">IA <span>Ultra Tech</span> Fiscal</div>
+  <div style="display:flex;gap:10px;align-items:center;">
+    <span class="badge">ISR 2026 · UMA VIGENTE · v2</span>
+    <span class="badge" style="border-color:var(--accent2);color:var(--accent2);">BY ALEXSAM</span>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- Panel Principal -->
+  <div class="controls-panel">
+    <div class="field-group">
+      <label>Periodicidad</label>
+      <select id="periodicidad" onchange="recalcularTodo()">
+        <option value="diario">Diario</option>
+        <option value="semanal">Semanal</option>
+        <option value="decenal">Decenal</option>
+        <option value="quincenal">Quincenal</option>
+        <option value="mensual" selected>Mensual</option>
+        <option value="anual">Anual</option>
+      </select>
+    </div>
+    <div class="field-group">
+      <label>Modo de Cálculo</label>
+      <select id="modoCalculo" onchange="recalcularTodo()">
+        <option value="directo">Directo (Bruto → Neto)</option>
+        <option value="inverso">Inverso (Neto → Bruto)</option>
+      </select>
+    </div>
+    <div class="field-group">
+      <label>Subsidio al Empleo</label>
+      <select id="subsidio" onchange="recalcularTodo()">
+        <option value="si">Aplicar Subsidio 2026</option>
+        <option value="no">Sin Subsidio</option>
+      </select>
+    </div>
+    <div class="field-group">
+      <label>Acción</label>
+      <button class="btn btn-primary" onclick="recalcularTodo()">⚡ RECALCULAR</button>
+    </div>
+  </div>
+
+  <!-- Panel Retenciones Globales -->
+  <div class="controls-panel ret-panel">
+    <div class="field-group">
+      <label>⚕ IMSS Cuota Obrera</label>
+      <select id="imssMode" onchange="recalcularTodo()">
+        <option value="auto">Aplicar % global</option>
+        <option value="no">No aplicar</option>
+      </select>
+    </div>
+    <div class="field-group">
+      <label>% IMSS (editable)</label>
+      <input type="number" id="imssCustomPct" min="0" max="20" step="0.001"
+        value="2.125" placeholder="2.125"
+        onblur="recalcularTodo()"
+        onkeydown="if(event.key==='Enter')recalcularTodo()">
+    </div>
+    <div class="field-group">
+      <label>💼 Otras Retenciones Global ($)</label>
+      <input type="number" id="otrasRetGlobal" min="0" step="10"
+        value="0" placeholder="Pensión, INFONAVIT, etc."
+        onblur="recalcularTodo()"
+        onkeydown="if(event.key==='Enter')recalcularTodo()">
+    </div>
+    <div class="field-group">
+      <label>Fórmula aplicada</label>
+      <div class="info-formula">
+        Neto = Bruto<br>
+        − ISR Neto<br>
+        − IMSS<br>
+        − Otras Ret.
+      </div>
+    </div>
+  </div>
+
+  <!-- Tarjetas Resumen -->
+  <div class="summary-panel">
+    <div class="summary-card">
+      <div class="summary-label">Total Bruto</div>
+      <div class="summary-value val-bruto" id="sumBruto">$0.00</div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-label">Total ISR</div>
+      <div class="summary-value val-isr" id="sumISR">$0.00</div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-label">Total Subsidio</div>
+      <div class="summary-value val-subsidio" id="sumSubsidio">$0.00</div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-label">Total IMSS</div>
+      <div class="summary-value val-imss" id="sumIMSS">$0.00</div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-label">Otras Ret.</div>
+      <div class="summary-value val-otras" id="sumOtras">$0.00</div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-label">Total Neto Final</div>
+      <div class="summary-value val-neto" id="sumNeto">$0.00</div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-label">Empleados Activos</div>
+      <div class="summary-value" style="color:var(--accent)" id="sumEmpleados">0</div>
+    </div>
+  </div>
+
+  <!-- Data Grid -->
+  <div class="data-grid">
+    <div class="grid-header">
+      <div class="grid-title">📊 Data Grid · 10 Empleados</div>
+      <div class="grid-actions">
+        <button class="btn btn-success btn-sm" onclick="exportarCSV()">📄 CSV</button>
+        <button class="btn btn-warning btn-sm" onclick="exportarXML()">🔖 XML</button>
+        <button class="btn btn-primary btn-sm" onclick="limpiarTodo()">🗑 Limpiar</button>
+      </div>
+    </div>
+    <div style="overflow-x:auto;">
+      <table id="gridTable">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Empleado</th>
+            <th>Modo</th>
+            <th>Entrada</th>
+            <th>±</th>
+            <th>Bruto</th>
+            <th>ISR Causado</th>
+            <th>Subsidio</th>
+            <th>ISR Neto</th>
+            <th>IMSS</th>
+            <th>Otras Ret.</th>
+            <th>Neto Final</th>
+          </tr>
+        </thead>
+        <tbody id="gridBody"></tbody>
+        <tfoot id="gridFoot"></tfoot>
+      </table>
+    </div>
+  </div>
+
+  <div class="footer-bar">
+    <span>Tarifas ISR Art. 96 LISR · UMA 2026 · Decreto Subsidio vigente · IMSS Cuota Obrera</span>
+    <span class="footer-brand">IA ULTRA TECH FISCAL DISRUPTIVA · BY ALEXSAM 2026</span>
+  </div>
+
+</div>
+
+<script>
+// Tarifas ISR Mensual 2026 - Validadas By AlexSam
+const TARIFAS = [
+  {li:0.01,       ls:844.59,      cf:0,          pct:0.0192},
+  {li:844.60,     ls:7168.51,     cf:16.22,      pct:0.0640},
+  {li:7168.52,    ls:12598.02,    cf:420.95,     pct:0.1088},
+  {li:12598.03,   ls:14644.64,    cf:1011.68,    pct:0.1600},
+  {li:14644.65,   ls:17533.64,    cf:1339.14,    pct:0.1792},
+  {li:17533.65,   ls:35362.83,    cf:1856.84,    pct:0.2136},
+  {li:35362.84,   ls:55736.68,    cf:5665.16,    pct:0.2352},
+  {li:55736.69,   ls:106410.50,   cf:10457.09,   pct:0.3000},
+  {li:106410.51,  ls:141880.66,   cf:25659.23,   pct:0.3200},
+  {li:141880.67,  ls:425641.99,   cf:37009.69,   pct:0.3400},
+  {li:425642.00,  ls:Infinity,    cf:133488.54,  pct:0.3500}
+];
+const UMA_MENSUAL = 3539.40;
+const SUBSIDIO_PCT = 0.1182;
+const TOPE_SUBSIDIO = 9081.00;
+const FACTORES = {diario:1/30.4,semanal:7/30.4,decenal:10/30.4,quincenal:.5,mensual:1,anual:12};
+
+function isrCausado(b){
+  if(b<=0)return 0;
+  for(const t of TARIFAS)if(b>=t.li&&b<=t.ls)return +(t.cf+(b-t.li)*t.pct).toFixed(2);
+  return 0;
+}
+function subsidio(b){
+  if(document.getElementById('subsidio').value==='no')return 0;
+  return(b>0&&b<=TOPE_SUBSIDIO)?+(UMA_MENSUAL*SUBSIDIO_PCT).toFixed(2):0;
+}
+function isrNeto(b){return +Math.max(0,isrCausado(b)-subsidio(b)).toFixed(2);}
+function neto(b){return +(b-isrNeto(b)).toFixed(2);}
+function inverso(obj){
+  // Inverso piramidado: el bruto debe cubrir ISR + IMSS + Otras Ret.
+  if(obj<=0)return 0;
+  const incSS=document.getElementById('imssMode').value!=='no';
+  const imssPct=(parseFloat(document.getElementById('imssCustomPct').value)||2.125)/100;
+  const otrasRet=parseFloat(document.getElementById('otrasRetGlobal').value)||0;
+  let lo=obj,hi=obj*3;
+  for(let i=0;i<500;i++){
+    const m=(lo+hi)/2;
+    const isrN=isrNeto(m);
+    const imssN=incSS?+(m*imssPct).toFixed(2):0;
+    const netoReal=+(m-isrN-imssN-otrasRet).toFixed(2);
+    if(Math.abs(netoReal-obj)<0.005)return +Math.round(m*100)/100;
+    netoReal<obj?lo=m:hi=m;
+  }
+  return +Math.round(((lo+hi)/2)*100)/100;
+}
+function conv(v,f){return +(v*f).toFixed(2);}
+
+function getIMSS(brutoMensual){
+  if(document.getElementById('imssMode').value==='no')return 0;
+  const pct=(parseFloat(document.getElementById('imssCustomPct').value)||2.125)/100;
+  return +(brutoMensual*pct).toFixed(2);
+}
+function getOtrasRet(){
+  return parseFloat(document.getElementById('otrasRetGlobal').value)||0;
+}
+
+let empleados=Array.from({length:10},(_,i)=>({nombre:`Empleado ${i+1}`,entrada:0}));
+
+function renderGrid(){
+  const tbody=document.getElementById('gridBody');
+  const modo=document.getElementById('modoCalculo').value;
+  const periodo=document.getElementById('periodicidad').value;
+  const f=FACTORES[periodo];
+  tbody.innerHTML='';
+  let tBruto=0,tISRC=0,tSub=0,tISRN=0,tIMSS=0,tOtras=0,tNeto=0,activos=0;
+
+  empleados.forEach((emp,idx)=>{
+    const ent=emp.entrada||0;
+    let bMens=0;
+    if(modo==='directo') bMens=conv(ent,1/f);
+    else bMens=inverso(conv(ent,1/f));
+
+    const isrcP=conv(isrCausado(bMens),f);
+    const subP=conv(subsidio(bMens),f);
+    const isrnP=conv(isrNeto(bMens),f);
+    const imssP=conv(getIMSS(bMens),f);
+    const otrasP=conv(getOtrasRet(),1); // ya es por periodo el campo global
+    const brutoP=conv(bMens,f);
+    const netoP=+(brutoP-isrnP-imssP-otrasP).toFixed(2);
+
+    if(ent>0){
+      tBruto+=brutoP;tISRC+=isrcP;tSub+=subP;
+      tISRN+=isrnP;tIMSS+=imssP;tOtras+=otrasP;tNeto+=netoP;activos++;
+    }
+
+    const tr=document.createElement('tr');
+    tr.innerHTML=`
+      <td class="row-num">${idx+1}</td>
+      <td><input class="td-input" value="${emp.nombre}"
+        onchange="empleados[${idx}].nombre=this.value" style="min-width:110px;"></td>
+      <td><span class="mode-badge ${modo==='directo'?'mode-directo':'mode-inverso'}">
+        ${modo==='directo'?'→ DIR':'← INV'}</span></td>
+      <td><input class="td-input" type="number" min="0" step="100"
+        value="${ent>0?ent:''}" placeholder="Monto"
+        onblur="empleados[${idx}].entrada=parseFloat(this.value)||0;recalcularTodo()"
+        onkeydown="if(event.key==='Enter'){empleados[${idx}].entrada=parseFloat(this.value)||0;recalcularTodo();}">
+      </td>
+      <td style="white-space:nowrap;">
+        <button class="btn btn-success btn-sm" onclick="ajustar(${idx},100)">+</button>
+        <button class="btn btn-warning btn-sm" onclick="ajustar(${idx},-100)" style="margin-left:3px;">-</button>
+      </td>
+      <td class="val-bruto">${ent>0?fmt(brutoP):'-'}</td>
+      <td class="val-isr">${ent>0?fmt(isrcP):'-'}</td>
+      <td class="val-subsidio">${ent>0?fmt(subP):'-'}</td>
+      <td class="val-isr">${ent>0?fmt(isrnP):'-'}</td>
+      <td class="val-imss">${ent>0?fmt(imssP):'-'}</td>
+      <td class="val-otras">${ent>0?fmt(otrasP):'-'}</td>
+      <td class="val-neto">${ent>0?fmt(netoP):'-'}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  document.getElementById('gridFoot').innerHTML=`
+    <tr class="totals-row">
+      <td colspan="5" style="text-align:right;font-family:'Rajdhani',sans-serif;letter-spacing:1px;">
+        TOTALES (${activos} emp.)</td>
+      <td>${fmt(tBruto)}</td><td>${fmt(tISRC)}</td><td>${fmt(tSub)}</td>
+      <td>${fmt(tISRN)}</td><td class="val-imss">${fmt(tIMSS)}</td>
+      <td class="val-otras">${fmt(tOtras)}</td><td class="val-neto">${fmt(tNeto)}</td>
+    </tr>`;
+
+  document.getElementById('sumBruto').textContent=fmt(tBruto);
+  document.getElementById('sumISR').textContent=fmt(tISRN);
+  document.getElementById('sumSubsidio').textContent=fmt(tSub);
+  document.getElementById('sumIMSS').textContent=fmt(tIMSS);
+  document.getElementById('sumOtras').textContent=fmt(tOtras);
+  document.getElementById('sumNeto').textContent=fmt(tNeto);
+  document.getElementById('sumEmpleados').textContent=activos;
+}
+
+function ajustar(idx,delta){
+  empleados[idx].entrada=Math.max(0,(empleados[idx].entrada||0)+delta);
+  renderGrid();
+}
+function recalcularTodo(){renderGrid();}
+function limpiarTodo(){
+  empleados=Array.from({length:10},(_,i)=>({nombre:`Empleado ${i+1}`,entrada:0}));
+  renderGrid();
+}
+function fmt(v){return'$'+v.toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2});}
+
+function exportarCSV(){
+  const periodo=document.getElementById('periodicidad').value;
+  const modo=document.getElementById('modoCalculo').value;
+  const f=FACTORES[periodo];
+  let csv=`"#","Empleado","Modo","Entrada","Bruto","ISR Causado","Subsidio","ISR Neto","IMSS","Otras Ret.","Neto Final"\n`;
+  empleados.forEach((emp,idx)=>{
+    if(!emp.entrada)return;
+    let bM=modo==='directo'?conv(emp.entrada,1/f):inverso(conv(emp.entrada,1/f));
+    const bP=conv(bM,f),isrcP=conv(isrCausado(bM),f),subP=conv(subsidio(bM),f);
+    const isrnP=conv(isrNeto(bM),f),imssP=conv(getIMSS(bM),f),otrasP=conv(getOtrasRet(),1);
+    const netoP=+(bP-isrnP-imssP-otrasP).toFixed(2);
+    csv+=`"${idx+1}","${emp.nombre}","${modo}","${emp.entrada}","${bP}","${isrcP}","${subP}","${isrnP}","${imssP}","${otrasP}","${netoP}"\n`;
+  });
+  descargar(csv,`ISR2026_${periodo}_v2_ByAlexSam.csv`,'text/csv');
+}
+
+function exportarXML(){
+  const periodo=document.getElementById('periodicidad').value;
+  const modo=document.getElementById('modoCalculo').value;
+  const f=FACTORES[periodo];
+  let xml=`<?xml version="1.0" encoding="UTF-8"?>\n<Nomina2026 periodicidad="${periodo}" modo="${modo}" por="ByAlexSam" fecha="${new Date().toISOString().split('T')[0]}">\n`;
+  empleados.forEach((emp,idx)=>{
+    if(!emp.entrada)return;
+    let bM=modo==='directo'?conv(emp.entrada,1/f):inverso(conv(emp.entrada,1/f));
+    const bP=conv(bM,f),isrcP=conv(isrCausado(bM),f),subP=conv(subsidio(bM),f);
+    const isrnP=conv(isrNeto(bM),f),imssP=conv(getIMSS(bM),f),otrasP=conv(getOtrasRet(),1);
+    const netoP=+(bP-isrnP-imssP-otrasP).toFixed(2);
+    xml+=`  <Empleado n="${idx+1}" nombre="${emp.nombre}">\n    <Bruto>${bP}</Bruto>\n    <ISRCausado>${isrcP}</ISRCausado>\n    <Subsidio>${subP}</Subsidio>\n    <ISRNeto>${isrnP}</ISRNeto>\n    <IMSS>${imssP}</IMSS>\n    <OtrasRet>${otrasP}</OtrasRet>\n    <NetoFinal>${netoP}</NetoFinal>\n  </Empleado>\n`;
+  });
+  xml+=`</Nomina2026>`;
+  descargar(xml,`ISR2026_${periodo}_v2_ByAlexSam.xml`,'application/xml');
+}
+
+function descargar(c,n,t){
+  const b=new Blob([c],{type:t}),u=URL.createObjectURL(b),a=document.createElement('a');
+  a.href=u;a.download=n;a.click();URL.revokeObjectURL(u);
+}
+
+renderGrid();
+</script>
+</body>
+</html>

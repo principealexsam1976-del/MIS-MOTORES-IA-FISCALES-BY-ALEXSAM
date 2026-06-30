@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ISR Global Comparativo | By AlexSam</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=IBM+Plex+Mono:wght@300;400;600&family=Exo+2:wght@300;400;600&display=swap');
+
+:root {
+  --bg:#04080f;--panel:#080f1a;--border:#162a40;
+  --accent:#00e5ff;--gold:#ffc107;--green:#00e676;
+  --red:#ff1744;--orange:#ff6d00;--text:#b0cfe8;--dim:#3a6080;
+  --mx:#006847;--dk:#c8102e;--fi:#003580;--se:#006aa7;--no:#ef2b2d;--be:#000000;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;min-height:100vh;
+  background-image:radial-gradient(ellipse at 10% 10%,rgba(0,229,255,.04) 0%,transparent 40%),
+  radial-gradient(ellipse at 90% 90%,rgba(255,193,7,.04) 0%,transparent 40%),
+  repeating-linear-gradient(0deg,transparent,transparent 40px,rgba(0,229,255,.015) 40px,rgba(0,229,255,.015) 41px),
+  repeating-linear-gradient(90deg,transparent,transparent 40px,rgba(0,229,255,.015) 40px,rgba(0,229,255,.015) 41px);}
+
+header{background:rgba(4,8,15,.95);border-bottom:1px solid var(--border);padding:14px 24px;
+  display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200;
+  backdrop-filter:blur(10px);}
+.logo{font-family:'Orbitron',monospace;font-weight:900;font-size:1.1rem;color:var(--accent);
+  letter-spacing:3px;text-transform:uppercase;}
+.logo span{color:var(--gold);}
+.badges{display:flex;gap:8px;}
+.badge{padding:3px 10px;border-radius:20px;font-size:.65rem;font-family:'IBM Plex Mono',monospace;
+  letter-spacing:1px;border:1px solid;white-space:nowrap;}
+.b-cyan{border-color:var(--accent);color:var(--accent);background:rgba(0,229,255,.08);}
+.b-gold{border-color:var(--gold);color:var(--gold);background:rgba(255,193,7,.08);}
+.b-warn{border-color:var(--orange);color:var(--orange);background:rgba(255,109,0,.08);}
+
+.container{max-width:1400px;margin:0 auto;padding:20px;}
+
+/* AVISO */
+.aviso{background:rgba(255,109,0,.1);border:1px solid rgba(255,109,0,.4);border-radius:10px;
+  padding:12px 18px;margin-bottom:20px;font-size:.75rem;font-family:'IBM Plex Mono',monospace;
+  color:var(--orange);line-height:1.6;}
+.aviso strong{color:#ff9800;}
+
+/* TABS */
+.tabs{display:flex;gap:4px;margin-bottom:20px;overflow-x:auto;padding-bottom:4px;}
+.tab{padding:10px 20px;border-radius:8px 8px 0 0;border:1px solid var(--border);
+  border-bottom:none;cursor:pointer;font-family:'Orbitron',monospace;font-size:.7rem;
+  letter-spacing:1px;text-transform:uppercase;transition:all .2s;white-space:nowrap;
+  background:rgba(8,15,26,.8);color:var(--dim);}
+.tab.active{background:var(--panel);border-color:var(--accent);}
+.tab:hover:not(.active){color:var(--text);}
+.tab:nth-child(1){color:#00e5ff;}.tab:nth-child(1).active{color:#fff;border-color:#00e5ff;}
+.tab:nth-child(2){color:#e0e0e0;}.tab:nth-child(2).active{color:#fff;border-color:#e0e0e0;}
+.tab:nth-child(3){color:#ffd700;}.tab:nth-child(3).active{color:#fff;border-color:#ffd700;}
+.tab:nth-child(4){color:#00e676;}.tab:nth-child(4).active{color:#fff;border-color:#00e676;}
+.tab:nth-child(5){color:#ff5252;}.tab:nth-child(5).active{color:#fff;border-color:#ff5252;}
+.tab:nth-child(6){color:#448aff;}.tab:nth-child(6).active{color:#fff;border-color:#448aff;}
+.tab:nth-child(7){color:#40c4ff;}.tab:nth-child(7).active{color:#fff;border-color:#40c4ff;}
+.tab:nth-child(8){color:#ff6e40;}.tab:nth-child(8).active{color:#fff;border-color:#ff6e40;}
+.tab:nth-child(9){color:#ffd740;}.tab:nth-child(9).active{color:#fff;border-color:#ffd740;}
+.tab[onclick*="modulo"]{}.tab[onclick*="modulo"].active{color:#00e5ff;border-color:#00e5ff;}
+.tab[onclick*="resumen"].active{color:#ffffff;border-color:#ffffff;}
+.tab[onclick*="ranking"].active{color:#ffd700;border-color:#ffd700;}
+.tab[onclick*="'mx'"].active,.tab[onclick*="mx"].active{color:#00e676;border-color:#00e676;}
+.tab[onclick*="dk"].active{color:#ff5252;border-color:#ff5252;}
+.tab[onclick*="fi"].active{color:#448aff;border-color:#448aff;}
+.tab[onclick*="se"].active{color:#40c4ff;border-color:#40c4ff;}
+.tab[onclick*="no"].active{color:#ff6e40;border-color:#ff6e40;}
+.tab[onclick*="be"].active{color:#ffd740;border-color:#ffd740;}
+
+.tab-content{display:none;background:var(--panel);border:1px solid var(--border);
+  border-radius:0 12px 12px 12px;padding:24px;}
+.tab-content.active{display:block;}
+
+/* INPUTS */
+.input-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:20px;}
+.field{display:flex;flex-direction:column;gap:6px;}
+label{font-size:.65rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--dim);
+  font-family:'IBM Plex Mono',monospace;}
+input,select{background:rgba(0,0,0,.5);border:1px solid var(--border);color:var(--text);
+  padding:10px 14px;border-radius:8px;font-family:'IBM Plex Mono',monospace;font-size:.9rem;
+  outline:none;transition:border-color .2s;width:100%;}
+input:focus,select:focus{border-color:var(--accent);}
+select option{background:#04080f;}
+
+.btn{padding:11px 22px;border-radius:8px;border:none;font-family:'Orbitron',monospace;
+  font-weight:700;font-size:.75rem;letter-spacing:2px;cursor:pointer;transition:all .25s;
+  text-transform:uppercase;}
+.btn-primary{background:linear-gradient(135deg,var(--accent),#0088aa);color:#000;}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 6px 24px rgba(0,229,255,.4);}
+.btn-danger{background:linear-gradient(135deg,#ff1744,#aa0022);color:#fff;}
+.btn-danger:hover{transform:translateY(-1px);}
+
+/* RESUMEN COMPARATIVO */
+.compare-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-top:20px;}
+.country-card{border-radius:12px;padding:18px;border:1px solid;transition:transform .2s;cursor:pointer;}
+.country-card:hover{transform:translateY(-3px);}
+.cc-flag{font-size:1.8rem;margin-bottom:8px;}
+.cc-name{font-family:'Orbitron',monospace;font-size:.75rem;letter-spacing:2px;text-transform:uppercase;margin-bottom:12px;}
+.cc-mx .cc-name{color:#00e676!important;}
+.cc-dk .cc-name{color:#ff5252!important;}
+.cc-fi .cc-name{color:#448aff!important;}
+.cc-se .cc-name{color:#40c4ff!important;}
+.cc-no .cc-name{color:#ff6e40!important;}
+.cc-be .cc-name{color:#ffd740!important;}
+.cc-metric{display:flex;justify-content:space-between;font-size:.72rem;margin-bottom:5px;font-family:'IBM Plex Mono',monospace;}
+.cc-metric .lbl{color:var(--dim);}
+.cc-bar-wrap{margin-top:10px;background:rgba(0,0,0,.4);border-radius:4px;height:6px;overflow:hidden;}
+.cc-bar{height:100%;border-radius:4px;transition:width .8s ease;}
+.cc-neto{font-family:'IBM Plex Mono',monospace;font-size:1.1rem;font-weight:600;margin-top:10px;text-align:center;}
+.cc-neto-lbl{font-size:.6rem;color:var(--dim);text-align:center;font-family:'IBM Plex Mono',monospace;}
+
+/* DETALLE POR PAÍS */
+.detail-table{width:100%;border-collapse:collapse;margin-top:16px;}
+.detail-table th{background:rgba(0,0,0,.4);padding:10px 14px;text-align:left;
+  font-size:.65rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--dim);
+  font-family:'IBM Plex Mono',monospace;border-bottom:1px solid var(--border);}
+.detail-table td{padding:10px 14px;border-bottom:1px solid rgba(22,42,64,.5);
+  font-family:'IBM Plex Mono',monospace;font-size:.82rem;}
+.detail-table tr:hover td{background:rgba(0,229,255,.02);}
+.total-row td{border-top:2px solid var(--accent);font-weight:600;color:var(--accent);}
+
+.section-title{font-family:'Orbitron',monospace;font-size:.85rem;color:var(--accent);
+  letter-spacing:2px;text-transform:uppercase;margin:20px 0 14px;border-bottom:1px solid var(--border);
+  padding-bottom:8px;}
+
+.nota-pais{background:rgba(0,229,255,.05);border-left:3px solid var(--accent);
+  padding:10px 14px;margin-bottom:16px;font-size:.72rem;font-family:'IBM Plex Mono',monospace;
+  color:var(--dim);line-height:1.6;}
+
+/* RANKING */
+.ranking-list{display:flex;flex-direction:column;gap:8px;margin-top:16px;}
+.rank-item{display:flex;align-items:center;gap:14px;padding:12px 16px;
+  background:rgba(0,0,0,.3);border-radius:8px;border:1px solid var(--border);}
+.rank-num{font-family:'Orbitron',monospace;font-size:1.2rem;font-weight:900;
+  color:var(--dim);min-width:30px;}
+.rank-num.r1{color:var(--gold);}
+.rank-num.r2{color:#aaa;}
+.rank-num.r3{color:#cd7f32;}
+.rank-flag{font-size:1.4rem;}
+.rank-name{font-family:'Orbitron',monospace;font-size:.72rem;letter-spacing:1px;flex:1;}
+.rank-bar-wrap{flex:2;background:rgba(0,0,0,.4);border-radius:4px;height:8px;}
+.rank-bar{height:100%;border-radius:4px;}
+.rank-val{font-family:'IBM Plex Mono',monospace;font-size:.82rem;min-width:80px;text-align:right;}
+
+.footer{background:var(--panel);border:1px solid var(--border);border-radius:10px;
+  padding:12px 20px;display:flex;justify-content:space-between;align-items:center;
+  font-size:.68rem;color:var(--dim);font-family:'IBM Plex Mono',monospace;margin-top:20px;}
+.footer-brand{color:var(--accent);font-weight:600;}
+
+@media(max-width:768px){
+  .compare-grid{grid-template-columns:1fr 1fr;}
+  .tabs{gap:2px;}
+  .tab{padding:8px 12px;font-size:.6rem;}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">ISR <span>Global</span> Compare</div>
+  <div class="badges">
+    <span class="badge b-cyan">6 PAÍSES</span>
+    <span class="badge b-gold">BY ALEXSAM 2026</span>
+    <span class="badge b-warn">ESTIMATIVO</span>
+  </div>
+</header>
+
+<div class="container">
+
+  <div class="aviso">
+    ⚠ <strong>AVISO METODOLÓGICO:</strong> Esta calculadora es un ejercicio estadístico comparativo con fines educativos. 
+    Las tasas y cargas sociales son <strong>estimaciones orientativas basadas en promedios OCDE 2024-2026</strong>. 
+    Los resultados no constituyen asesoría fiscal internacional. Cada país tiene deducciones, créditos y variantes 
+    por tipo de contrato, estado civil y región que no están incluidas. <strong>Margen de error estimado: ±5-15%.</strong>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <div class="tab active" onclick="showTab('modulo')">⚙ Módulo Integrador</div>
+    <div class="tab" onclick="showTab('resumen')">🌐 Resumen Global</div>
+    <div class="tab" onclick="showTab('ranking')">🏆 Ranking Neto</div>
+    <div class="tab" onclick="showTab('mx')">🇲🇽 México</div>
+    <div class="tab" onclick="showTab('dk')">🇩🇰 Dinamarca</div>
+    <div class="tab" onclick="showTab('fi')">🇫🇮 Finlandia</div>
+    <div class="tab" onclick="showTab('se')">🇸🇪 Suecia</div>
+    <div class="tab" onclick="showTab('no')">🇳🇴 Noruega</div>
+    <div class="tab" onclick="showTab('be')">🇧🇪 Bélgica</div>
+  </div>
+
+  <!-- TAB: MÓDULO INTEGRADOR -->
+  <div class="tab-content active" id="tab-modulo">
+    <div class="section-title">⚙ Parámetros de Comparación</div>
+    <div class="input-grid">
+      <div class="field">
+        <label>Ingreso Bruto Mensual (MXN)</label>
+        <input type="number" id="ingresoMXN" value="30000" min="0" step="1000"
+          placeholder="Ej. 30000"
+          onblur="calcularTodo()" onkeydown="if(event.key==='Enter')calcularTodo()">
+      </div>
+      <div class="field">
+        <label>Tipo de Cambio USD/MXN</label>
+        <input type="number" id="tipoCambio" value="17.5" min="1" step="0.1"
+          onblur="calcularTodo()" onkeydown="if(event.key==='Enter')calcularTodo()">
+      </div>
+      <div class="field">
+        <label>Periodicidad</label>
+        <select id="periodicidad" onchange="calcularTodo()">
+          <option value="semanal">Semanal</option>
+          <option value="quincenal">Quincenal</option>
+          <option value="mensual" selected>Mensual</option>
+          <option value="anual">Anual</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Modo</label>
+        <select id="modo" onchange="calcularTodo()">
+          <option value="directo">Directo (Bruto → Neto)</option>
+          <option value="inverso">Inverso (Neto → Bruto)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Incluir Seg. Social estimada</label>
+        <select id="incSegSoc" onchange="calcularTodo()">
+          <option value="si">Sí (estimado por país)</option>
+          <option value="no">No (solo ISR)</option>
+        </select>
+      </div>
+      <div class="field" style="align-self:end;">
+        <button class="btn btn-primary" onclick="calcularTodo()">⚡ CALCULAR Y COMPARAR</button>
+      </div>
+    </div>
+
+    <div class="section-title">📊 Vista Rápida Comparativa</div>
+    <div class="compare-grid" id="compareGrid">
+      <div style="color:var(--dim);font-family:'IBM Plex Mono',monospace;font-size:.8rem;
+        padding:20px;text-align:center;grid-column:1/-1;">
+        Ingresa un monto y presiona CALCULAR Y COMPARAR
+      </div>
+    </div>
+  </div>
+
+    <!-- MÓDULO OCDE -->
+    <div class="section-title" style="margin-top:30px;">🌍 Impacto Real · Indicadores OCDE 2024-2026</div>
+    <div class="aviso" style="margin-bottom:16px;">
+      Fuentes: World Happiness Report 2025 · OCDE How's Life? 2024 · Tax Foundation 2026 · OCDE Taxing Wages 2025. Scores de satisfacción en escala 0-10. Datos orientativos con margen de error estimado.
+    </div>
+    <div style="overflow-x:auto;">
+      <table class="detail-table">
+        <thead><tr>
+          <th>País</th><th>Felicidad /10</th><th>Carga Fiscal</th><th>Salud</th>
+          <th>Educación</th><th>Esp. Vida</th><th>Gasto Social %PIB</th><th>Retorno social</th>
+        </tr></thead>
+        <tbody>
+          <tr><td>🇲🇽 México</td><td style="color:var(--orange)">6.1</td><td style="color:var(--green)">~20%</td><td style="color:var(--orange)">Parcial</td><td style="color:var(--orange)">Básica</td><td>75.1 años</td><td style="color:var(--red)">~7.5%</td><td style="color:var(--dim);font-size:.72rem">Servicios limitados, gasto privado alto</td></tr>
+          <tr><td>🇩🇰 Dinamarca</td><td style="color:var(--green)">7.58</td><td style="color:var(--red)">~36%</td><td style="color:var(--green)">Universal</td><td style="color:var(--green)">Hasta univ. + beca</td><td>81.4 años</td><td style="color:var(--green)">~28%</td><td style="color:var(--dim);font-size:.72rem">Salud, educación, pensión, desempleo cubiertos</td></tr>
+          <tr><td>🇫🇮 Finlandia</td><td style="color:var(--green)">7.74 🥇</td><td style="color:var(--red)">~37%</td><td style="color:var(--green)">Universal</td><td style="color:var(--green)">Hasta doctorado</td><td>82.0 años</td><td style="color:var(--green)">~29%</td><td style="color:var(--dim);font-size:.72rem">Sistema educativo top mundial</td></tr>
+          <tr><td>🇸🇪 Suecia</td><td style="color:var(--green)">7.35</td><td style="color:var(--red)">~42%</td><td style="color:var(--green)">Universal</td><td style="color:var(--green)">Sí + estipendio</td><td>83.1 años</td><td style="color:var(--green)">~25%</td><td style="color:var(--dim);font-size:.72rem">Cuidado infantil, parental, pensión</td></tr>
+          <tr><td>🇳🇴 Noruega</td><td style="color:var(--green)">7.51</td><td style="color:var(--orange)">~36%</td><td style="color:var(--green)">Universal</td><td style="color:var(--green)">Hasta universidad</td><td>83.2 años</td><td style="color:var(--green)">~25%</td><td style="color:var(--dim);font-size:.72rem">Fondo soberano petróleo, mayor PIB p.c.</td></tr>
+          <tr><td>🇧🇪 Bélgica</td><td style="color:var(--orange)">6.91</td><td style="color:var(--red)">~51% 🔴</td><td style="color:var(--green)">Universal</td><td style="color:var(--green)">Subsidiada</td><td>81.6 años</td><td style="color:var(--green)">~29%</td><td style="color:var(--dim);font-size:.72rem">Mayor carga OCDE, servicios amplios</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="section-title" style="margin-top:24px;">💡 La Paradoja Fiscal</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin-top:8px;">
+      <div style="background:rgba(255,23,68,.08);border:1px solid rgba(255,23,68,.3);border-radius:10px;padding:16px;">
+        <div style="font-family:'Orbitron',monospace;font-size:.72rem;color:var(--red);margin-bottom:8px;">🇲🇽 MÉXICO · Carga ~20%</div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:.73rem;color:var(--dim);line-height:1.7;">
+          Pagas menos ISR pero:<br>
+          ✗ Salud de bolsillo: $25,000-$150,000+ evento<br>
+          ✗ Educación privada: $3,000-$15,000/mes<br>
+          ✗ Pensión privada necesaria<br>
+          <span style="color:var(--orange)">Costo real oculto: 35-50% del ingreso</span>
+        </div>
+      </div>
+      <div style="background:rgba(0,230,118,.08);border:1px solid rgba(0,230,118,.3);border-radius:10px;padding:16px;">
+        <div style="font-family:'Orbitron',monospace;font-size:.72rem;color:var(--green);margin-bottom:8px;">🇫🇮 FINLANDIA · Carga ~37%</div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:.73rem;color:var(--dim);line-height:1.7;">
+          Pagas más ISR pero:<br>
+          ✓ Salud: $0 (copago mínimo)<br>
+          ✓ Universidad: $0 + estipendio<br>
+          ✓ Pensión: garantizada por Estado<br>
+          <span style="color:var(--green)">Costo real adicional: ~5% del ingreso</span>
+        </div>
+      </div>
+      <div style="background:rgba(0,229,255,.08);border:1px solid rgba(0,229,255,.3);border-radius:10px;padding:16px;">
+        <div style="font-family:'Orbitron',monospace;font-size:.72rem;color:var(--accent);margin-bottom:8px;">📊 CONCLUSIÓN OCDE</div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:.73rem;color:var(--dim);line-height:1.7;">
+          El neto nominal en MX puede ser mayor,<br>
+          pero el <strong style="color:var(--gold)">poder adquisitivo real</strong><br>
+          considerando servicios de bolsillo<br>
+          es frecuentemente inferior.<br>
+          <span style="color:var(--orange)">Fuente: OCDE How's Life? 2024</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- TAB: RESUMEN GLOBAL -->
+  <div class="tab-content" id="tab-resumen">
+    <div class="section-title">🌐 Tabla Comparativa Global</div>
+    <div style="overflow-x:auto;">
+      <table class="detail-table" id="tablaResumen">
+        <thead>
+          <tr>
+            <th>País</th>
+            <th>Bruto (MXN)</th>
+            <th>ISR Estimado</th>
+            <th>Seg. Social Est.</th>
+            <th>Total Retenciones</th>
+            <th>Carga Efectiva %</th>
+            <th>Neto (MXN)</th>
+            <th>Neto (USD)</th>
+          </tr>
+        </thead>
+        <tbody id="bodyResumen">
+          <tr><td colspan="8" style="text-align:center;color:var(--dim);padding:20px;">
+            Ejecuta el cálculo en el Módulo Integrador</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- TAB: RANKING -->
+  <div class="tab-content" id="tab-ranking">
+    <div class="section-title">🏆 Ranking por Neto Final</div>
+    <div class="ranking-list" id="rankingList">
+      <div style="color:var(--dim);font-family:'IBM Plex Mono',monospace;font-size:.8rem;padding:20px;">
+        Ejecuta el cálculo primero</div>
+    </div>
+  </div>
+
+  <!-- TAB: MÉXICO -->
+  <div class="tab-content" id="tab-mx">
+    <div class="nota-pais">
+      🇲🇽 <strong>México</strong> — ISR Art. 96 LISR. Tarifas 2026 actualizadas. 
+      Seguridad Social: Cuota IMSS obrera ~2.125% SBC + INFONAVIT ~5%. 
+      Subsidio al empleo hasta $9,081 mensual (Decreto Mayo 2024).
+    </div>
+    <div class="section-title">Desglose Cálculo México</div>
+    <div style="overflow-x:auto;"><table class="detail-table" id="tablaMX"><thead><tr>
+      <th>Concepto</th><th>Mensual (MXN)</th><th>Anual (MXN)</th><th>% del Bruto</th>
+    </tr></thead><tbody id="bodyMX">
+      <tr><td colspan="4" style="text-align:center;color:var(--dim);padding:16px;">Ejecuta el cálculo</td></tr>
+    </tbody></table></div>
+  </div>
+
+  <!-- TAB: DINAMARCA -->
+  <div class="tab-content" id="tab-dk">
+    <div class="nota-pais">
+      🇩🇰 <strong>Dinamarca</strong> — Tasa máxima 60.5% (2026). Tasa efectiva promedio trabajador medio ~35-37%. 
+      Dinamarca NO tiene contribuciones de seguridad social separadas, todo va al ISR. 
+      ATP (pensión obligatoria): ~DKK 284/mes fija.
+    </div>
+    <div class="section-title">Desglose Cálculo Dinamarca</div>
+    <div style="overflow-x:auto;"><table class="detail-table" id="tablaDK"><thead><tr>
+      <th>Concepto</th><th>Mensual (MXN)</th><th>Anual (MXN)</th><th>% del Bruto</th>
+    </tr></thead><tbody id="bodyDK">
+      <tr><td colspan="4" style="text-align:center;color:var(--dim);padding:16px;">Ejecuta el cálculo</td></tr>
+    </tbody></table></div>
+  </div>
+
+  <!-- TAB: FINLANDIA -->
+  <div class="tab-content" id="tab-fi">
+    <div class="nota-pais">
+      🇫🇮 <strong>Finlandia</strong> — Tasa máxima ~51.4% (reducida en 2025). 
+      Cotizaciones sociales empleado: ~8.65% (pension) + ~1.5% (desempleo) + ~1.5% (salud) ≈ 11.65% total.
+    </div>
+    <div class="section-title">Desglose Cálculo Finlandia</div>
+    <div style="overflow-x:auto;"><table class="detail-table" id="tableFI"><thead><tr>
+      <th>Concepto</th><th>Mensual (MXN)</th><th>Anual (MXN)</th><th>% del Bruto</th>
+    </tr></thead><tbody id="bodyFI">
+      <tr><td colspan="4" style="text-align:center;color:var(--dim);padding:16px;">Ejecuta el cálculo</td></tr>
+    </tbody></table></div>
+  </div>
+
+  <!-- TAB: SUECIA -->
+  <div class="tab-content" id="tab-se">
+    <div class="nota-pais">
+      🇸🇪 <strong>Suecia</strong> — ISR municipal promedio ~32% + ISR estatal 20% sobre ingresos altos. 
+      Pensión empleado: 7% del bruto. Sin cotización adicional de salud (cubierta por empleador).
+    </div>
+    <div class="section-title">Desglose Cálculo Suecia</div>
+    <div style="overflow-x:auto;"><table class="detail-table" id="tableSE"><thead><tr>
+      <th>Concepto</th><th>Mensual (MXN)</th><th>Anual (MXN)</th><th>% del Bruto</th>
+    </tr></thead><tbody id="bodySE">
+      <tr><td colspan="4" style="text-align:center;color:var(--dim);padding:16px;">Ejecuta el cálculo</td></tr>
+    </tbody></table></div>
+  </div>
+
+  <!-- TAB: NORUEGA -->
+  <div class="tab-content" id="tab-no">
+    <div class="nota-pais">
+      🇳🇴 <strong>Noruega</strong> — ISR base 22% + sobretasa progresiva hasta 17.6% adicional. 
+      Seguridad social empleado: 7.9% del ingreso bruto.
+    </div>
+    <div class="section-title">Desglose Cálculo Noruega</div>
+    <div style="overflow-x:auto;"><table class="detail-table" id="tableNO"><thead><tr>
+      <th>Concepto</th><th>Mensual (MXN)</th><th>Anual (MXN)</th><th>% del Bruto</th>
+    </tr></thead><tbody id="bodyNO">
+      <tr><td colspan="4" style="text-align:center;color:var(--dim);padding:16px;">Ejecuta el cálculo</td></tr>
+    </tbody></table></div>
+  </div>
+
+  <!-- TAB: BÉLGICA -->
+  <div class="tab-content" id="tab-be">
+    <div class="nota-pais">
+      🇧🇪 <strong>Bélgica</strong> — Mayor carga laboral total OCDE (50.8% tax wedge). 
+      ISR hasta 53.5%. Cotizaciones sociales empleado: ~13.07% del bruto.
+    </div>
+    <div class="section-title">Desglose Cálculo Bélgica</div>
+    <div style="overflow-x:auto;"><table class="detail-table" id="tableBE"><thead><tr>
+      <th>Concepto</th><th>Mensual (MXN)</th><th>Anual (MXN)</th><th>% del Bruto</th>
+    </tr></thead><tbody id="bodyBE">
+      <tr><td colspan="4" style="text-align:center;color:var(--dim);padding:16px;">Ejecuta el cálculo</td></tr>
+    </tbody></table></div>
+  </div>
+
+  <div class="footer">
+    <span>Fuentes: OCDE Taxing Wages 2025 · Tax Foundation 2026 · LISR MX 2026 · Estimaciones orientativas</span>
+    <span class="footer-brand">IA ULTRA TECH FISCAL DISRUPTIVA · BY ALEXSAM 2026</span>
+  </div>
+
+</div>
+
+<script>
+// ============================================================
+// DATOS POR PAÍS - Tasas efectivas estimadas por tramo (mensual MXN)
+// ============================================================
+const PAISES = {
+  mx: {
+    nombre:'México', flag:'🇲🇽', color:'#00e676', borderColor:'#006847',
+    moneda:'MXN', tcLocal:1,
+    nota:'ISR Art.96 LISR tarifas 2026. Subsidio al empleo incluido.',
+    calcISR: calcMX_ISR,
+    segSocPct: 0.07125, // IMSS 2.125% + INFONAVIT 5%
+    servicios: 'Salud pública limitada, educación básica gratuita'
+  },
+  dk: {
+    nombre:'Dinamarca', flag:'🇩🇰', color:'#ff5252', borderColor:'#c8102e',
+    moneda:'DKK', tcLocal:0.133, // 1 MXN ≈ 0.0076 USD, 1 DKK ≈ 0.133 USD
+    nota:'Sin seg. social separada. ATP fijo. Tasa efectiva estimada.',
+    calcISR: calcDK_ISR,
+    segSocPct: 0.01, // Solo ATP estimado ~1%
+    servicios: 'Salud, educación universitaria, desempleo, pensión — todos gratuitos'
+  },
+  fi: {
+    nombre:'Finlandia', flag:'🇫🇮', color:'#448aff', borderColor:'#003580',
+    moneda:'EUR', tcLocal:0.048,
+    nota:'Cotizaciones sociales empleado ≈11.65%. ISR progresivo.',
+    calcISR: calcFI_ISR,
+    segSocPct: 0.1165,
+    servicios: 'Salud, educación, desempleo cubiertos'
+  },
+  se: {
+    nombre:'Suecia', flag:'🇸🇪', color:'#40c4ff', borderColor:'#006aa7',
+    moneda:'SEK', tcLocal:0.085,
+    nota:'ISR municipal ~32%. Pensión empleado 7%.',
+    calcISR: calcSE_ISR,
+    segSocPct: 0.07,
+    servicios: 'Salud, educación, cuidado infantil cubiertos'
+  },
+  no: {
+    nombre:'Noruega', flag:'🇳🇴', color:'#ff6e40', borderColor:'#ef2b2d',
+    moneda:'NOK', tcLocal:0.087,
+    nota:'ISR base 22% + sobretasas progresivas. Seg. social 7.9%.',
+    calcISR: calcNO_ISR,
+    segSocPct: 0.079,
+    servicios: 'Salud, educación, fondos soberanos de petróleo'
+  },
+  be: {
+    nombre:'Bélgica', flag:'🇧🇪', color:'#ffd740', borderColor:'#f5c400',
+    moneda:'EUR', tcLocal:0.048,
+    nota:'Mayor carga OCDE 50.8%. Seg. social empleado 13.07%.',
+    calcISR: calcBE_ISR,
+    segSocPct: 0.1307,
+    servicios: 'Salud, educación, desempleo ampliamente cubiertos'
+  }
+};
+
+const FACTORES = {semanal:12/52,quincenal:.5,mensual:1,anual:12};
+
+// ============== ISR MÉXICO ==============
+// Tarifas ISR Mensual 2026 - Art.96 LISR - Validadas By AlexSam
+const TARIFAS_MX = [
+  {li:0.01,      ls:844.59,      cf:0,          pct:.0192},
+  {li:844.60,    ls:7168.51,     cf:16.22,      pct:.064},
+  {li:7168.52,   ls:12598.02,    cf:420.95,     pct:.1088},
+  {li:12598.03,  ls:14644.64,    cf:1011.68,    pct:.16},
+  {li:14644.65,  ls:17533.64,    cf:1339.14,    pct:.1792},
+  {li:17533.65,  ls:35362.83,    cf:1856.84,    pct:.2136},
+  {li:35362.84,  ls:55736.68,    cf:5665.16,    pct:.2352},
+  {li:55736.69,  ls:106410.50,   cf:10457.09,   pct:.3},
+  {li:106410.51, ls:141880.66,   cf:25659.23,   pct:.32},
+  {li:141880.67, ls:425641.99,   cf:37009.69,   pct:.34},
+  {li:425642.00, ls:Infinity,    cf:133488.54,  pct:.35}
+];
+const UMA=3539.40,SUB_PCT=.1182,TOPE_SUB=9081;
+
+function calcMX_ISR(brutoMensual){
+  let isr=0;
+  for(const t of TARIFAS_MX)if(brutoMensual>=t.li&&brutoMensual<=t.ls){isr=t.cf+(brutoMensual-t.li)*t.pct;break;}
+  const sub=brutoMensual<=TOPE_SUB?UMA*SUB_PCT:0;
+  return +Math.max(0,isr-sub).toFixed(2);
+}
+
+// ============== ISR DINAMARCA (estimado) ==============
+function calcDK_ISR(brutoMXN){
+  // Tasa efectiva estimada por rango (simplificada)
+  let pct=0;
+  if(brutoMXN<=15000) pct=.08;
+  else if(brutoMXN<=30000) pct=.28;
+  else if(brutoMXN<=60000) pct=.36;
+  else if(brutoMXN<=120000) pct=.42;
+  else pct=.50;
+  return +(brutoMXN*pct).toFixed(2);
+}
+
+// ============== ISR FINLANDIA (estimado) ==============
+function calcFI_ISR(brutoMXN){
+  let pct=0;
+  if(brutoMXN<=12000) pct=.06;
+  else if(brutoMXN<=25000) pct=.22;
+  else if(brutoMXN<=50000) pct=.30;
+  else if(brutoMXN<=100000) pct=.38;
+  else pct=.44;
+  return +(brutoMXN*pct).toFixed(2);
+}
+
+// ============== ISR SUECIA (estimado) ==============
+function calcSE_ISR(brutoMXN){
+  let pct=0;
+  if(brutoMXN<=10000) pct=.05;
+  else if(brutoMXN<=25000) pct=.26;
+  else if(brutoMXN<=50000) pct=.32;
+  else if(brutoMXN<=100000) pct=.40;
+  else pct=.47;
+  return +(brutoMXN*pct).toFixed(2);
+}
+
+// ============== ISR NORUEGA (estimado) ==============
+function calcNO_ISR(brutoMXN){
+  let pct=0;
+  if(brutoMXN<=12000) pct=.05;
+  else if(brutoMXN<=25000) pct=.20;
+  else if(brutoMXN<=60000) pct=.28;
+  else if(brutoMXN<=100000) pct=.36;
+  else pct=.42;
+  return +(brutoMXN*pct).toFixed(2);
+}
+
+// ============== ISR BÉLGICA (estimado) ==============
+function calcBE_ISR(brutoMXN){
+  let pct=0;
+  if(brutoMXN<=10000) pct=.10;
+  else if(brutoMXN<=25000) pct=.30;
+  else if(brutoMXN<=50000) pct=.38;
+  else if(brutoMXN<=100000) pct=.45;
+  else pct=.50;
+  return +(brutoMXN*pct).toFixed(2);
+}
+
+// ============== CÁLCULO INVERSO ==============
+function inverso(objetivo, paisKey){
+  if(objetivo<=0)return 0;
+  const p=PAISES[paisKey];
+  const incSS=document.getElementById('incSegSoc').value==='si';
+  let lo=objetivo,hi=objetivo*2.5;
+  for(let i=0;i<300;i++){
+    const m=(lo+hi)/2;
+    const isr=p.calcISR(m);
+    const ss=incSS?m*p.segSocPct:0;
+    const n=m-isr-ss;
+    if(Math.abs(n-objetivo)<.5)return +m.toFixed(2);
+    n<objetivo?lo=m:hi=m;
+  }
+  return +((lo+hi)/2).toFixed(2);
+}
+
+function fmt(v){return'$'+v.toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2});}
+function pct(v,b){return b>0?(v/b*100).toFixed(1)+'%':'0%';}
+
+let resultados={};
+
+function calcularTodo(){
+  const ingresoMXN=parseFloat(document.getElementById('ingresoMXN').value)||30000;
+  const tc=parseFloat(document.getElementById('tipoCambio').value)||17.5;
+  const periodo=document.getElementById('periodicidad').value;
+  const modo=document.getElementById('modo').value;
+  const incSS=document.getElementById('incSegSoc').value==='si';
+  const f=FACTORES[periodo];
+
+  resultados={};
+
+  Object.entries(PAISES).forEach(([key,p])=>{
+    let brutoMensual;
+    if(modo==='directo'){
+      brutoMensual=ingresoMXN/f; // convertir a mensual
+    } else {
+      const objMensual=ingresoMXN/f;
+      brutoMensual=inverso(objMensual,key);
+    }
+
+    const isr=p.calcISR(brutoMensual);
+    const ss=incSS?+(brutoMensual*p.segSocPct).toFixed(2):0;
+    const totalRet=+(isr+ss).toFixed(2);
+    const netoMensual=+(brutoMensual-totalRet).toFixed(2);
+    const cargaEfectiva=brutoMensual>0?+(totalRet/brutoMensual*100).toFixed(1):0;
+
+    const brutoP=+(brutoMensual*f).toFixed(2);
+    const isrP=+(isr*f).toFixed(2);
+    const ssP=+(ss*f).toFixed(2);
+    const retP=+(totalRet*f).toFixed(2);
+    const netoP=+(netoMensual*f).toFixed(2);
+
+    resultados[key]={
+      brutoMensual,isr,ss,totalRet,netoMensual,cargaEfectiva,
+      brutoP,isrP,ssP,retP,netoP,
+      netoUSD:+(netoP/tc).toFixed(2),
+      brutoUSD:+(brutoP/tc).toFixed(2)
+    };
+  });
+
+  renderCompareGrid();
+  renderTablaResumen(tc);
+  renderRanking(tc);
+  renderDetalle('mx','MX','bodyMX');
+  renderDetalle('dk','DK','bodyDK');
+  renderDetalle('fi','FI','bodyFI');
+  renderDetalle('se','SE','bodySE');
+  renderDetalle('no','NO','bodyNO');
+  renderDetalle('be','BE','bodyBE');
+}
+
+function renderCompareGrid(){
+  const grid=document.getElementById('compareGrid');
+  const maxNeto=Math.max(...Object.values(resultados).map(r=>r.netoP));
+  grid.innerHTML='';
+  Object.entries(PAISES).forEach(([key,p])=>{
+    const r=resultados[key];
+    const barW=maxNeto>0?(r.netoP/maxNeto*100).toFixed(0):0;
+    const card=document.createElement('div');
+    card.className='country-card';
+    card.style.cssText=`border-color:${p.borderColor};background:rgba(0,0,0,.4);`;
+    card.onclick=()=>showTab(key);
+    card.innerHTML=`
+      <div class="cc-flag">${p.flag}</div>
+      <div class="cc-name" style="color:${p.color}">${p.nombre}</div>
+      <div class="cc-metric"><span class="lbl">Bruto</span><span>${fmt(r.brutoP)}</span></div>
+      <div class="cc-metric"><span class="lbl">ISR</span><span style="color:var(--red)">${fmt(r.isrP)}</span></div>
+      <div class="cc-metric"><span class="lbl">Seg.Soc</span><span style="color:var(--orange)">${fmt(r.ssP)}</span></div>
+      <div class="cc-metric"><span class="lbl">Carga</span><span style="color:var(--gold)">${r.cargaEfectiva}%</span></div>
+      <div class="cc-bar-wrap"><div class="cc-bar" style="width:${barW}%;background:${p.color}"></div></div>
+      <div class="cc-neto" style="color:${p.color}">${fmt(r.netoP)}</div>
+      <div class="cc-neto-lbl">Neto Final · Click para detalles</div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+function renderTablaResumen(tc){
+  const tbody=document.getElementById('bodyResumen');
+  tbody.innerHTML='';
+  Object.entries(PAISES).forEach(([key,p])=>{
+    const r=resultados[key];
+    const tr=document.createElement('tr');
+    tr.innerHTML=`
+      <td>${p.flag} ${p.nombre}</td>
+      <td>${fmt(r.brutoP)}</td>
+      <td style="color:var(--red)">${fmt(r.isrP)}</td>
+      <td style="color:var(--orange)">${fmt(r.ssP)}</td>
+      <td style="color:var(--gold)">${fmt(r.retP)}</td>
+      <td style="color:var(--gold)">${r.cargaEfectiva}%</td>
+      <td style="color:var(--green);font-weight:600">${fmt(r.netoP)}</td>
+      <td style="color:var(--accent)">${fmt(r.netoUSD)} USD</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function renderRanking(tc){
+  const sorted=Object.entries(resultados).sort((a,b)=>b[1].netoP-a[1].netoP);
+  const maxNeto=sorted[0][1].netoP;
+  const list=document.getElementById('rankingList');
+  list.innerHTML='';
+  sorted.forEach(([key,r],i)=>{
+    const p=PAISES[key];
+    const barW=maxNeto>0?(r.netoP/maxNeto*100).toFixed(0):0;
+    const item=document.createElement('div');
+    item.className='rank-item';
+    item.style.cursor='pointer';
+    item.onclick=()=>showTab(key);
+    item.innerHTML=`
+      <div class="rank-num ${i===0?'r1':i===1?'r2':i===2?'r3':''}">${i+1}</div>
+      <div class="rank-flag">${p.flag}</div>
+      <div class="rank-name" style="color:${p.color}">${p.nombre}</div>
+      <div class="rank-bar-wrap">
+        <div class="rank-bar" style="width:${barW}%;background:${p.color}"></div>
+      </div>
+      <div class="rank-val" style="color:${p.color}">${fmt(r.netoP)}</div>
+      <div class="rank-val" style="color:var(--dim);font-size:.7rem">${r.cargaEfectiva}% carga</div>
+    `;
+    list.appendChild(item);
+  });
+}
+
+function renderDetalle(key,sigla,bodyId){
+  const r=resultados[key];
+  const p=PAISES[key];
+  const tbody=document.getElementById(bodyId);
+  if(!r){tbody.innerHTML='<tr><td colspan="4" style="text-align:center;color:var(--dim);padding:16px;">Ejecuta el cálculo</td></tr>';return;}
+  tbody.innerHTML=`
+    <tr><td>Salario Bruto (periodo)</td><td>${fmt(r.brutoP)}</td><td>${fmt(r.brutoP*12)}</td><td>100%</td></tr>
+    <tr><td style="color:var(--red)">− ISR ${sigla} (estimado)</td>
+      <td style="color:var(--red)">${fmt(r.isrP)}</td>
+      <td style="color:var(--red)">${fmt(r.isrP*12)}</td>
+      <td style="color:var(--red)">${pct(r.isrP,r.brutoP)}</td></tr>
+    <tr><td style="color:var(--orange)">− Seg. Social Empleado (est.)</td>
+      <td style="color:var(--orange)">${fmt(r.ssP)}</td>
+      <td style="color:var(--orange)">${fmt(r.ssP*12)}</td>
+      <td style="color:var(--orange)">${pct(r.ssP,r.brutoP)}</td></tr>
+    <tr class="total-row">
+      <td>= NETO FINAL</td>
+      <td style="color:${p.color}">${fmt(r.netoP)}</td>
+      <td style="color:${p.color}">${fmt(r.netoP*12)}</td>
+      <td style="color:var(--gold)">${(100-r.cargaEfectiva).toFixed(1)}% del bruto</td></tr>
+    <tr><td style="color:var(--dim)">Carga efectiva total</td>
+      <td style="color:var(--gold)" colspan="3">${r.cargaEfectiva}% — ${p.servicios}</td></tr>
+  `;
+}
+
+function showTab(id){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  // Activar tab correspondiente
+  const tabs=document.querySelectorAll('.tab');
+  const orden=['modulo','resumen','ranking','mx','dk','fi','se','no','be'];
+  const idx=orden.indexOf(id);
+  if(idx>=0&&tabs[idx])tabs[idx].classList.add('active');
+}
+
+// Calcular al cargar
+calcularTodo();
+</script>
+</body>
+</html>
